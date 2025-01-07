@@ -21,26 +21,17 @@ def cat_add_or_list(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def cat_edit_or_delete(request, pk):
-    if request.method == 'PATCH':
-        cat = Cat.objects.get(pk=pk)
+    cat = Cat.objects.get(pk=pk)
+    if request.method == 'PATCH' or request.method == 'PUT':
         serializer = CatSerializer(cat, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'GET':
-        cat = Cat.objects.get(pk=pk)
-        serializer = CatSerializer(cat)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        cat = Cat.objects.get(pk=pk)
-        serializer = CatSerializer(cat, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        cat = Cat.objects.get(pk=pk)
+    elif request.method == 'DELETE':
         cat.delete()
         return Response({"message": "Запись успешно удалена."},
                         status=status.HTTP_204_NO_CONTENT)
+    else:
+        serializer = CatSerializer(cat)
+        return Response(serializer.data)
